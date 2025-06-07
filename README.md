@@ -1,21 +1,16 @@
 # 🚨 Disaster Tweet Classification System Using Transformers
 
-## Overview
+---
 
-This project implements an end-to-end pipeline for detecting whether a tweet refers to a real disaster or not. The system combines **state-of-the-art natural language embeddings**, **structured categorical features**, and **gradient boosting techniques** to deliver accurate and explainable predictions. An intuitive **web-based interface** built using **Streamlit** allows users to interact with the model in real-time.
+During disasters, social media often becomes a noisy mix of real alerts, public reactions, and irrelevant metaphorical language. The objective of this system is to distinguish between tweets that actually report disaster-related events and those that do not. This aids in:
+
+* Improving **disaster response coordination**
+* Reducing **manual filtering effort** for responders
+* Enhancing **real-time situational awareness**
 
 ---
 
-## Problem Statement
-
-During disaster events, social media platforms—particularly Twitter—serve as critical communication channels. However, distinguishing between actual disaster-related tweets and unrelated or metaphorical tweets poses a challenge for emergency response systems. The goal of this project is to **automatically classify tweets** into two categories:
-
-* **1 (True)** — Tweet refers to a real disaster event.
-* **0 (False)** — Tweet does **not** refer to a real disaster event.
-
----
-
-## Solution Architecture
+## 🧪 Solution Architecture
 
 ```
           +----------------+       +------------------------+
@@ -50,20 +45,20 @@ During disaster events, social media platforms—particularly Twitter—serve as
 
 ---
 
-## Technologies Used
+## 🛠 Technologies Used
 
-| Tool/Library            | Purpose                        |
-| ----------------------- | ------------------------------ |
-| `pandas`                | Data cleaning and manipulation |
-| `scikit-learn`          | Data splitting and evaluation  |
-| `xgboost`               | Model training (classifier)    |
-| `sentence-transformers` | Pre-trained NLP embeddings     |
-| `streamlit`             | Interactive web application    |
-| `joblib`                | Model and object serialization |
+| Library                 | Purpose                               |
+| ----------------------- | ------------------------------------- |
+| `pandas`, `numpy`       | Data handling and transformation      |
+| `xgboost`               | Gradient boosting classifier          |
+| `scikit-learn`          | Model evaluation and data splitting   |
+| `sentence-transformers` | Pre-trained NLP embeddings (`MiniLM`) |
+| `streamlit`             | Interactive front-end for prediction  |
+| `joblib`                | Model and schema serialization        |
 
 ---
 
-## Setup Instructions
+## 🚀 Setup Instructions
 
 ### 1. Clone Repository
 
@@ -78,7 +73,7 @@ cd disaster-tweet-classifier
 pip install -r requirements.txt
 ```
 
-Contents of `requirements.txt`:
+#### requirements.txt:
 
 ```
 pandas
@@ -92,39 +87,37 @@ joblib
 
 ---
 
-## Training Pipeline
+## 🧠 Training the Model
 
-The training pipeline is encapsulated in `train_model.py`.
+The training logic is encapsulated in `train_model.py`.
 
-### Workflow:
+### Steps:
 
-1. Load and preprocess dataset from `tweets.csv`
-2. Fill missing values (e.g., unknown locations or keywords)
-3. Perform one-hot encoding for `keyword` and `location`
-4. Embed tweet `text` using `all-MiniLM-L6-v2` transformer
-5. Concatenate embeddings with encoded features
-6. Split into training and validation sets (stratified)
-7. Train an XGBoost classifier
-8. Save model and one-hot schema to disk
+1. Load raw data (`tweets.csv`)
+2. Preprocess `keyword` and `location` using one-hot encoding
+3. Encode `text` using SentenceTransformer (`all-MiniLM-L6-v2`)
+4. Concatenate all features
+5. Train an XGBoost classifier
+6. Save the model and encoding schema
 
-### Run Training:
+### Run:
 
 ```bash
 python train_model.py
 ```
 
-Artifacts:
+### Output:
 
-* `xgb_disaster_model.joblib`: Trained XGBoost model
-* `onehot_columns.joblib`: One-hot encoding column mapping
+* `xgb_disaster_model.joblib` – Trained classifier
+* `onehot_columns.joblib` – Column schema for inference
 
 ---
 
-## Web Application
+## 💻 Web Application
 
-The app allows users to classify custom tweet input in real time.
+An interactive UI built with Streamlit allows users to test the classifier in real time.
 
-### Launch the App:
+### Launch:
 
 ```bash
 streamlit run app.py
@@ -132,47 +125,39 @@ streamlit run app.py
 
 ### Features:
 
-* Text area to input tweet
-* Optional inputs: `keyword`, `location`
-* Model prediction and probability confidence
+* Input tweet text
+* Optional: `keyword` and `location`
+* Displays:
 
-The app loads:
-
-* The serialized XGBoost model
-* The one-hot column schema
-* The sentence transformer model (for text embeddings)
+  * Predicted label (`Real Disaster` or `Not a Disaster`)
+  * Prediction confidence (%)
 
 ---
 
-## Input and Output Schema
+## 🔍 Input/Output Schema
 
-### Input Format
+### Input Fields:
 
-| Field      | Description                             | Required |
-| ---------- | --------------------------------------- | -------- |
-| `text`     | Tweet content                           | ✅        |
-| `keyword`  | Disaster-related keyword (e.g. "flood") | Optional |
-| `location` | Location of tweet                       | Optional |
+| Field      | Description                         | Required |
+| ---------- | ----------------------------------- | -------- |
+| `text`     | Content of the tweet                | ✅ Yes    |
+| `keyword`  | Disaster-related keyword            | Optional |
+| `location` | Location information (if available) | Optional |
 
-### Output Format
+### Output:
 
-* **Label**: `Real Disaster` or `Not a Disaster`
-* **Confidence Score**: Probability of predicted class (0–100%)
+* `Prediction`: Disaster-related or not
+* `Confidence`: Probability of prediction
 
 ---
 
-## Evaluation Metrics
+## 📊 Model Evaluation
 
-The model performance is evaluated using:
+Evaluation uses a stratified 80/20 split with `classification_report` from `scikit-learn`.
 
-* **Precision**
-* **Recall**
-* **F1-Score**
-* **Accuracy**
+**Sample Output:**
 
-Output (from `classification_report`):
-
-```text
+```
               precision    recall  f1-score   support
 
            0       0.85      0.89      0.87       870
@@ -185,34 +170,46 @@ weighted avg       0.84      0.84      0.84      1522
 
 ---
 
-## Potential Improvements
+## 🔧 Project Structure
 
-To further improve performance and usability:
-
-### Modeling
-
-* Incorporate **transformer fine-tuning** on tweet-specific datasets.
-* Explore **multi-modal** inputs (e.g., images, hashtags, time).
-* Introduce **class balancing techniques** (SMOTE, focal loss).
-
-### UI/UX
-
-* Provide **interpretability features** using SHAP or LIME.
-* Auto-detect keyword and location via NLP extraction (e.g., named entity recognition).
-* Batch prediction interface for CSV uploads.
-
-### Deployment
-
-* Wrap the Streamlit app as a **Docker container** for portability.
-* Integrate into real-time data pipelines (e.g., Twitter streaming API).
+```
+.
+├── app.py                    # Streamlit web application
+├── train_model.py            # Model training pipeline
+├── tweets.csv                # Dataset (input)
+├── xgb_disaster_model.joblib # Trained model
+├── onehot_columns.joblib     # One-hot encoding column list
+└── README.md                 # Project documentation
+```
 
 ---
 
-## Acknowledgements
+## 📈 Possible Enhancements
 
-* The [`all-MiniLM-L6-v2`](https://www.sbert.net/docs/pretrained_models.html) model from SentenceTransformers.
-* [Kaggle Disaster Tweets Dataset](https://www.kaggle.com/competitions/nlp-getting-started) for the original dataset.
-* Contributors and open-source community for XGBoost, Streamlit, and Hugging Face.
+* **Modeling**
+
+  * Fine-tune transformer embeddings on tweet-specific corpora
+  * Add TF-IDF or POS-tag features
+  * Experiment with deep learning (e.g., LSTM, BERT-based classifier)
+
+* **User Experience**
+
+  * Visualize model decisions using SHAP or LIME
+  * Auto-fill `keyword` and `location` using NER/NLP pipelines
+  * Add batch upload support (CSV)
+
+* **Deployment**
+
+  * Dockerize the app
+  * Integrate with real-time APIs (e.g., Twitter streaming)
+
+---
+
+## 🙏 Acknowledgements
+
+* Dataset inspired by [Kaggle Disaster Tweets Challenge](https://www.kaggle.com/competitions/nlp-getting-started)
+* Embedding model: [`all-MiniLM-L6-v2`](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2)
+* Thanks to the open-source community for tools like XGBoost, Streamlit, and Sentence Transformers.
 
 ---
 # License
